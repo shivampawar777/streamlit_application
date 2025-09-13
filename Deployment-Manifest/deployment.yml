@@ -18,4 +18,4 @@ spec:
       - name: streamlit-app
         image: shivam139/streamlit-app:replaceImageTag
         ports:
-        - containerPort: 8080
+        - containerPort: 8501
