@@ -16,11 +16,13 @@ pipeline {
         }
         stage('Build & push docker image') {
             steps {
-                echo "Building the docker image And then pushing image to the dockerHub"
+                echo 'Building the docker image And then pushing image to the dockerHub'
                 withCredentials([usernamePassword(credentialsId: "dockerhub", usernameVariable: "dockerhubUser", passwordVariable: "dockerhubPass")]) {
-                    sh 'Python-app && docker build -t ${env.dockerhubUser}/streamlit_application:${BUILD_NUMBER} .'
-                    sh 'docker login -u ${env.dockerhubUser} --password-stdin ${env.dockerhubPass}'
-                    sh 'docker push ${env.dockerhubUser}/streamlit_application:${BUILD_NUMBER}'
+                    sh """
+                        cd Python-app && docker build -t ${env.dockerhubUser}/streamlit_application:${BUILD_NUMBER} .
+                        docker login -u ${env.dockerhubUser} -p ${env.dockerhubPass}
+                        docker push ${env.dockerhubUser}/streamlit_application:${BUILD_NUMBER}
+                    """
                 }
             }
         }
@@ -28,16 +30,18 @@ pipeline {
             environment {
                 GITHUB_EMAIL = "pawarshivam826@gmail.com"
                 GITHUB_USERNAME = "shivampawar777"
-                GITHUB_REPO = "streamlit-application"
+                GITHUB_REPO = "streamlit_application"
             }
             steps {
                 withCredentials([string(credentialsId: "gitHub", variable: "GITHUB_TOKEN")]) {
-                    sh 'git config user.email ${GITUB_EMAIL}'
-                    sh 'git config user.name ${env.GITHUB_USERNAME}'
-                    sh 'sed -i "s/replaceImageTag/${BUILD_NUMBER}/g" Deployment-manifest/deployment.yml'
-                    sh 'git add Deployment-manifest/deployment.yml'
-                    sh 'git commit -m "Updated deployment image to version ${BUILD_NUMBER}'
-                    sh 'git push https://${env.GTIHUB_TOKEN}@github.com/${GITHUB_USERNAME}/${GITHU_REPO}/ HEAD:main
+                    sh """
+                        git config user.email "${GITHUB_EMAIL}"
+                        git config user.name "${GITHUB_USERNAME}"
+                        sed -i "s/replaceImageTag/${BUILD_NUMBER}/g" Deployment-manifest/deployment.yml
+                        git add Deployment-manifest/deployment.yml
+                        git commit -m "Updated deployment image to version ${BUILD_NUMBER}"
+                        git push https://${env.GITHUB_TOKEN}@github.com/${GITHUB_USERNAME}/${GITHUB_REPO} HEAD:main
+                    """        
                 }
             }
         }
