@@ -8,7 +8,10 @@ COPY requirements.txt .
 
 #install build tools, system dependencies
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends build-essential software-properties-common git && \
+    apt-get install -y --no-install-recommends \
+        build-essential \
+        software-properties-common \
+        git && \
     pip install --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt && \
     apt-get purge -y --auto-remove build-essential software-properties-common git && \
